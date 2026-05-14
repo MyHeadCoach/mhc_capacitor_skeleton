@@ -253,6 +253,47 @@ This skeleton ships **without** GitHub Actions, fastlane, or EAS. Add what fits 
 
 ---
 
+## 8. Adding or removing a feature
+
+Every feature module in this skeleton lives in exactly four places. Toggling a feature means hitting all four — miss one and you get a runtime error or a dead tab.
+
+1. **Page components** — `src/pages/<feature>/` (e.g. `src/pages/trades/`)
+2. **Pinia store** — `src/stores/<feature>.ts`
+3. **Route entries** — `src/router/index.ts`
+4. **Tab bar entry** — `src/layouts/TabsLayout.vue`
+
+### Adding a feature called `myfeature`
+
+- Create `src/pages/myfeature/MyFeaturePage.vue` (and any sub-pages).
+- Create `src/stores/myfeature.ts` with the Pinia store and the API calls the feature needs.
+- Register the route(s) in `src/router/index.ts`. Use `meta: { requiresAuth: true }` for any view that should be auth-gated.
+- Add the tab in `src/layouts/TabsLayout.vue` with an icon, label, and the route path.
+
+### Removing a feature (e.g. `sessions`)
+
+- Delete `src/pages/sessions/`.
+- Delete `src/stores/sessions.ts`.
+- Remove the route(s) from `src/router/index.ts`.
+- Remove the tab entry from `src/layouts/TabsLayout.vue`.
+- Search for stray imports: `grep -r "from '@/stores/sessions'" src/` and `grep -r "from '@/pages/sessions'" src/`.
+
+The pattern is deliberately symmetric. If you find yourself touching files outside these four locations to enable or disable a feature, you've found a leak — fix the leak rather than working around it.
+
+---
+
+## 9. Owned by the backend — do not change
+
+These contracts are owned by the backend (Laravel + Sanctum + Reverb). The mobile app must conform to them; the reverse is not true. Changes here require backend coordination, not a local edit:
+
+- **API path shapes.** The `/api/m/...` routes in §2. Renaming or restructuring them on the client desyncs immediately.
+- **WebSocket channel names.** `chat.room.{roomId}`, `user.{userId}`, etc. — defined by the server's broadcast events. The client subscribes to whatever the server publishes; don't rename on the way in.
+- **Auth token shape.** Sanctum bearer string, attached as `Authorization: Bearer <token>`. Do not wrap, re-encode, or split it.
+- **Push payload shape.** Outgoing token registration is `{ token, platform, appVersion }` to `/api/m/mobile/push-tokens`. Incoming notifications carry whatever the backend's FCM dispatcher sends — read those keys, don't normalize them away.
+
+Rule of thumb: if a contract is awkward to consume on the client, file an issue against the backend rather than patching around it locally.
+
+---
+
 ## Project layout reference
 
 ```
