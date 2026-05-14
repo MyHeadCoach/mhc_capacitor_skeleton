@@ -281,7 +281,71 @@ The pattern is deliberately symmetric. If you find yourself touching files outsi
 
 ---
 
-## 9. Owned by the backend — do not change
+## 9. Adding a standalone page (no backend integration)
+
+Sometimes you just need a static page — About, FAQ, Help, Privacy Policy, a custom welcome screen, a marketing screen for a specific tenant — that doesn't talk to the backend at all. The four-touchpoint pattern in §8 is overkill for this. Use the three-step shortcut below.
+
+### 1. Create the page
+
+For a single page, a flat `.vue` file under `src/pages/` is fine. For anything with sub-pages, use a folder.
+
+```vue
+<!-- src/pages/AboutPage.vue -->
+<template>
+  <IonPage>
+    <IonHeader>
+      <IonToolbar>
+        <IonTitle>About</IonTitle>
+      </IonToolbar>
+    </IonHeader>
+    <IonContent class="bg-slate-900">
+      <div class="px-4 py-6 space-y-4">
+        <h1 class="text-2xl font-bold text-white">About this app</h1>
+        <p class="text-slate-300">Your static content goes here.</p>
+      </div>
+    </IonContent>
+  </IonPage>
+</template>
+
+<script setup lang="ts">
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
+</script>
+```
+
+Match the styling pattern of the other pages (Tailwind on the dark slate background). Reuse `AppButton`, `MenuSection`, `MenuItem`, etc. from `src/components/` to keep visual consistency.
+
+### 2. Register the route
+
+In `src/router/index.ts`:
+
+```ts
+{
+  path: '/about',
+  name: 'about',
+  component: () => import('@/pages/AboutPage.vue'),
+  meta: { requiresAuth: false },  // or true if the page should be auth-gated
+},
+```
+
+Use the lazy `() => import(...)` form so the page is split out of the initial bundle.
+
+### 3. Make it reachable — pick one
+
+- **Menu link (most common).** Drop a `MenuItem` into an existing `MenuSection`. The Profile page's menu blocks are the natural home for About / Help / Privacy entries.
+- **Tab bar entry (rare for static pages).** Add to `src/layouts/TabsLayout.vue` with an icon and label — but be cautious about cluttering the tab bar; most static pages don't warrant a tab.
+- **Inline link or button anywhere.** `router.push('/about')` from a click handler, or `<router-link to="/about">` in a template.
+
+### What you don't need
+
+- **No Pinia store.** Static pages have no shared state.
+- **No `src/services/` calls.** No backend means no axios, no Echo subscription, nothing in `services/`.
+- **No backend coordination.** Anything that lives entirely inside the bundle is yours to add, change, or remove without touching the API.
+
+If the page later grows to need server data, graduate it to the full four-touchpoint pattern in §8.
+
+---
+
+## 10. Owned by the backend — do not change
 
 These contracts are owned by the backend (Laravel + Sanctum + Reverb). The mobile app must conform to them; the reverse is not true. Changes here require backend coordination, not a local edit:
 
