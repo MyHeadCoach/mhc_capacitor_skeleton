@@ -345,7 +345,99 @@ If the page later grows to need server data, graduate it to the full four-touchp
 
 ---
 
-## 10. Owned by the backend — do not change
+## 10. Customizing the look and feel
+
+The skeleton ships a dark-slate UI with emerald primary. Three layers control everything visual; change them in this order to rebrand the app.
+
+### Layer 1 — Ionic design tokens (`src/theme/variables.css`)
+
+Ionic CSS custom properties for primary / secondary / tertiary / success / warning / danger, plus background, text, card, toolbar, and item colors. Editing these cascades through all `Ion*` components (alerts, tab bar, native form controls, etc.) automatically.
+
+```css
+:root {
+  --ion-color-primary: #10b981;          /* change this */
+  --ion-color-primary-rgb: 16, 185, 129;  /* and this (rgb form is required) */
+  --ion-color-primary-shade: #0ea472;
+  --ion-color-primary-tint: #28c08e;
+  --ion-background-color: #0f172a;        /* base background */
+  /* ...etc */
+}
+```
+
+Each named color needs all four variants (`-rgb`, `-shade`, `-tint`, `-contrast`) — Ionic uses them internally for hover, active, and contrast states.
+
+### Layer 2 — Global element overrides (`src/style.css`)
+
+Where the dark background (`#0f172a`) and toolbar styling are hardcoded as element selectors:
+
+```css
+ion-header  { background: #0f172a; border: none; }
+ion-toolbar { --background: transparent; --border-width: 0; padding: 24px 16px 12px; }
+ion-content { --background: #0f172a; }
+```
+
+This is also where Tailwind is imported (`@import "tailwindcss"`). Edit the colors here if you want a different base, or add `@font-face` rules for custom fonts.
+
+### Layer 3 — Tailwind utilities (in each `.vue` file)
+
+Most pages style themselves with Tailwind classes (`bg-slate-900`, `text-slate-300`, `rounded-2xl`). To swap the neutral palette, find-and-replace `slate-` across `src/` with your chosen Tailwind palette (`zinc`, `gray`, `neutral`, `stone`, or your custom one).
+
+### Gotcha — `AppButton.vue` has its own color table
+
+`src/components/AppButton.vue` hardcodes RGB values per variant inside a `variantStyles` constant (lines 41–72). It **does not** read from Ionic CSS variables. To restyle buttons you must edit this file directly:
+
+```ts
+const variantStyles: Record<ButtonVariant, Record<string, string>> = {
+  primary: {
+    backgroundColor: 'rgb(6 78 59)',     // change these
+    borderColor: 'rgb(5 150 105)',
+    color: 'rgb(110 231 183)',
+  },
+  // ...
+};
+```
+
+`AppBadge.vue` is the opposite — it uses Tailwind classes (`bg-emerald-500/20 text-emerald-400 ...`), so a palette find-and-replace at Layer 3 covers it. Most other components (`AppHeader`, `MenuItem`, `MenuSection`, `TradeCard`, `MessageBubble`, etc.) are Tailwind-only and pick up palette changes automatically.
+
+### App icon and splash screen
+
+Source SVGs live in `resources/`:
+
+- `resources/icon.svg`
+- `resources/splash.svg`
+
+Replace them with your own, then generate platform-specific assets at every required size:
+
+```bash
+npm install --save-dev @capacitor/assets
+npx @capacitor/assets generate
+```
+
+This writes iOS icon sets, Android mipmaps, and splash screens into the native platform folders. Re-run after any visual change to the source SVGs.
+
+### Fonts
+
+The skeleton uses the system font stack (Tailwind's `font-sans` default). To use a custom font, either add `@font-face` rules in `src/style.css` and extend Tailwind's `theme.fontFamily`, or `@import` a hosted font (Google Fonts, etc.) at the top of `src/style.css`.
+
+### Light mode (not built in)
+
+The skeleton is dark-mode only. To add light mode: gate hardcoded dark backgrounds behind Tailwind's `dark:` variant (`bg-white dark:bg-slate-900`), toggle a `dark` class on `<html>` from a composable, and add a `@media (prefers-color-scheme: light)` block in `variables.css` for the Ionic side.
+
+### Per-tenant rebrand checklist
+
+For a full brand swap, touch these in order:
+
+1. `src/theme/variables.css` — Ionic color tokens (all four variants per color).
+2. `src/style.css` — global element backgrounds (`#0f172a`) and the Tailwind import.
+3. `src/components/AppButton.vue` — `variantStyles` table.
+4. Find-and-replace Tailwind palette across `src/` (e.g. `slate-` → `zinc-`, `emerald-` → `indigo-`).
+5. `resources/icon.svg` and `resources/splash.svg` → re-run `npx @capacitor/assets generate`.
+6. `capacitor.config.ts` — `appName` (the home-screen label).
+7. `index.html` — `<title>` and `<meta name="apple-mobile-web-app-title">`.
+
+---
+
+## 11. Owned by the backend — do not change
 
 These contracts are owned by the backend (Laravel + Sanctum + Reverb). The mobile app must conform to them; the reverse is not true. Changes here require backend coordination, not a local edit:
 
