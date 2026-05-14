@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2732 2732" width="2732" height="2732">
+  <defs>
+    <linearGradient id="chartGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:0.03" />
+    </linearGradient>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="2732" height="2732" fill="#0f172a"/>
+  <!-- Subtle center glow -->
+  <rect width="2732" height="2732" fill="url(#bgGlow)" opacity="0.3"/>
+
+  <!-- Subtle grid lines -->
+  <g opacity="0.05" stroke="#94a3b8" stroke-width="1">
+    <line x1="400" y1="900" x2="2332" y2="900"/>
+    <line x1="400" y1="1100" x2="2332" y2="1100"/>
+    <line x1="400" y1="1300" x2="2332" y2="1300"/>
+    <line x1="400" y1="1500" x2="2332" y2="1500"/>
+    <line x1="400" y1="1700" x2="2332" y2="1700"/>
+  </g>
+
+  <!-- Area fill under chart -->
+  <path d="M500,1650 L750,1550 L1000,1580 L1200,1400 L1450,1440 L1700,1200 L1950,1080 L2200,920 L2200,1800 L500,1800 Z" fill="url(#glowGrad)"/>
+
+  <!-- Main chart line -->
+  <polyline
+    points="500,1650 750,1550 1000,1580 1200,1400 1450,1440 1700,1200 1950,1080 2200,920"
+    fill="none"
+    stroke="url(#chartGrad)"
+    stroke-width="36"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Candlestick accents -->
+  <g opacity="0.35">
+    <line x1="850" y1="1450" x2="850" y2="1620" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/>
+    <rect x="836" y="1490" width="28" height="70" rx="4" fill="#ef4444"/>
+
+    <line x1="1100" y1="1300" x2="1100" y2="1480" stroke="#10b981" stroke-width="8" stroke-linecap="round"/>
+    <rect x="1086" y="1320" width="28" height="80" rx="4" fill="#10b981"/>
+
+    <line x1="1450" y1="1280" x2="1450" y2="1440" stroke="#10b981" stroke-width="8" stroke-linecap="round"/>
+    <rect x="1436" y="1300" width="28" height="70" rx="4" fill="#10b981"/>
+
+    <line x1="1800" y1="1050" x2="1800" y2="1230" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/>
+    <rect x="1786" y="1090" width="28" height="70" rx="4" fill="#ef4444"/>
+  </g>
+
+  <!-- Dot at the end of chart line -->
+  <circle cx="2200" cy="920" r="18" fill="#10b981"/>
+  <circle cx="2200" cy="920" r="30" fill="#10b981" opacity="0.3"/>
+
+  <!-- App name -->
+  <text x="1366" y="2150" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" font-size="180" font-weight="700" fill="#ffffff" letter-spacing="4">App</text>
+</svg>

@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Reset Ionic's default button styling so Tailwind classes work */
+button {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+}
+
+ion-header {
+  background: #0f172a;
+  border: none;
+}
+
+ion-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  padding: 24px 16px 12px;
+}
+
+ion-title {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+ion-content {
+  --background: #0f172a;
+  --padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+}
+
+ion-tab-bar {
+  --background: rgba(15, 23, 42, 0.95);
+  --border: 0;
+  padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 -10px 30px rgba(2, 6, 23, 0.6);
+}
+
+ion-tab-button {
+  --color: rgb(148 163 184);
+  --color-selected: rgb(16 185 129);
+  padding: 0 6px;
+}
