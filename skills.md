@@ -29,7 +29,6 @@ After a successful login the skeleton calls `setAuthToken(token)`, persists the 
 
 | Action | Method + path | Where called |
 |---|---|---|
-| 2FA challenge (stub) | `POST /api/m/auth/two-factor-challenge` | Not yet wired in UI |
 | Session restore | `GET /api/m/user` | `src/services/auth.ts:checkSession` |
 | Switch tenant | `POST /api/m/auth/select-tenant` | `src/services/auth.ts:selectTenant` |
 | Logout | `POST /api/m/auth/logout` | `src/services/auth.ts:logout` |
@@ -53,7 +52,6 @@ All endpoints are relative to `VITE_API_BASE_URL`. All authed endpoints require 
 | Method | Path | Source |
 |---|---|---|
 | POST | `/api/m/auth/login` | `src/services/auth.ts` |
-| POST | `/api/m/auth/two-factor-challenge` | (stub) |
 | POST | `/api/m/auth/select-tenant` | `src/services/auth.ts` |
 | POST | `/api/m/auth/logout` | `src/services/auth.ts` |
 | GET | `/api/m/user` | `src/services/auth.ts` |
@@ -244,13 +242,7 @@ The skeleton uses `@capacitor/push-notifications` and already implements device-
 
 ### Backend
 
-Your backend reads tokens from `POST /api/m/mobile/push-tokens` and sends notifications via the FCM HTTP v1 API. Not implemented in this skeleton.
-
-### Known TODOs (in `src/services/notifications.ts`)
-
-- Deep linking on `pushNotificationActionPerformed` is a placeholder.
-- No in-app foreground notification UI yet.
-- Notification preferences in `src/stores/notifications.ts` are local-only — no server sync endpoints wired.
+Your backend receives device tokens at `POST /api/m/mobile/push-tokens` and sends pushes via the FCM HTTP v1 API. The `pushNotificationActionPerformed` listener in `src/services/notifications.ts` is where you wire deep-linking from a tapped notification into your router.
 
 ---
 
@@ -459,9 +451,9 @@ This writes iOS icon sets, Android mipmaps, and splash screens into the native p
 
 The skeleton uses the system font stack (Tailwind's `font-sans` default). To use a custom font, either add `@font-face` rules in `src/style.css` and extend Tailwind's `theme.fontFamily`, or `@import` a hosted font (Google Fonts, etc.) at the top of `src/style.css`.
 
-### Light mode (not built in)
+### Light mode
 
-The skeleton is dark-mode only. To add light mode: gate hardcoded dark backgrounds behind Tailwind's `dark:` variant (`bg-white dark:bg-slate-900`), toggle a `dark` class on `<html>` from a composable, and add a `@media (prefers-color-scheme: light)` block in `variables.css` for the Ionic side.
+To add a light theme: gate hardcoded dark backgrounds behind Tailwind's `dark:` variant (`bg-white dark:bg-slate-900`), toggle a `dark` class on `<html>` from a composable, and add a `@media (prefers-color-scheme: light)` block in `variables.css` for the Ionic side.
 
 ### Per-tenant rebrand checklist
 
