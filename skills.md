@@ -74,9 +74,13 @@ All endpoints are relative to `VITE_API_BASE_URL`. All authed endpoints require 
 | POST | `/api/m/my-communities/{roomId}/toggle-favorite` | Pin/unpin |
 | GET | `/api/m/communities/{communityId}/feed` | Query: `per_page`. Source: `src/stores/chat.ts`, `src/stores/announcements.ts` |
 | POST | `/api/m/communities/{communityId}/feed` | Body: `{ content }` |
+| POST | `/api/m/communities/{communityId}/feed/{messageId}/like` | Toggle like on a feed post |
 | GET | `/api/m/dm` | DM conversation list |
-| GET | `/api/m/dm/{roomId}/messages` | DM thread |
-| POST | `/api/m/dm/{roomId}/messages` | Body: `{ message, type: 'text' }` |
+| POST | `/api/m/dm` | Create or fetch a DM room. Body: `{ recipient_id }` |
+| GET | `/api/m/dm/{roomId}/messages` | DM thread. Query: `before_id` for cursor pagination |
+| POST | `/api/m/dm/{roomId}/messages` | Body: `{ message, type: 'text', reply_to_id? }` |
+| POST | `/api/m/dm/{roomId}/messages/{messageId}/react` | Body: `{ emoji }`. Triggers the `chat.reaction.updated` Echo event |
+| POST | `/api/m/dm/{roomId}/read` | Mark all messages in room as read (clears `unread_count`) |
 
 ### Events & push
 
@@ -92,7 +96,43 @@ Most endpoints return one of: a raw object, `{ data }`, `{ data: { data: [] } }`
 
 ### Realtime
 
-Laravel Reverb over the Pusher protocol via `laravel-echo` + `pusher-js`. See `src/services/echo.ts`. Channels: `chat.room.{roomId}`, `user.{userId}`, etc. Events: `message.sent`, `chat.reaction.updated`, `message.read`, `notification.created`, and more.
+Laravel Reverb over the Pusher protocol via `laravel-echo` + `pusher-js`. Connection setup in `src/services/echo.ts`. `Echo.private(name)` adds the `private-` wire prefix automatically — the constants in code are unprefixed.
+
+**Channels** (from `echoChannels` in `src/services/echo.ts`):
+
+| Helper | Name | Used for |
+|---|---|---|
+| `echoChannels.chatRoom(id)` | `chat.room.{id}` | Community room messages |
+| `echoChannels.dm(id)` | `chat.room.{id}` | DMs (same broadcast namespace as community rooms) |
+| `echoChannels.userNotifications(id)` | `user.{id}` | Per-user notification events |
+
+**Events** (from `echoEvents` in the same file):
+
+| Constant | Wire name | Trigger |
+|---|---|---|
+| `messageSent` | `message.sent` | New message in a chat room or DM |
+| `reactionUpdated` | `chat.reaction.updated` | A reaction was added or removed |
+| `messageRead` | `message.read` | Read receipt |
+| `userOnlineStatus` | `user.online.status` | Presence change |
+| `userTyping` | `user.typing` | Typing indicator |
+| `notificationCreated` | `notification.created` | New in-app notification |
+| `meetingStarted` / `meetingEnded` | `meeting.started` / `meeting.ended` | Live meeting lifecycle |
+| `sessionEnded` | `coaching.session.ended` | Coaching session ended |
+
+Private-channel authentication goes through `POST /api/m/broadcasting/auth` (configured via Echo's `authEndpoint`).
+
+### Error responses
+
+All endpoints return Laravel-standard error shapes:
+
+| Status | Body | Notes |
+|---|---|---|
+| 401 Unauthorized | `{ "message": "Unauthenticated." }` | The axios response interceptor in `src/services/api.ts` clears the token and redirects to `/login` automatically |
+| 403 Forbidden | `{ "message": "This action is unauthorized." }` | |
+| 404 Not Found | `{ "message": "..." }` | |
+| 422 Validation Error | `{ "message": "...", "errors": { "field": ["message"] } }` | Surface `errors[field][0]` next to the form field |
+
+When adding new API calls, 401 is handled globally — you don't need a per-call redirect. Handle 422 explicitly where forms are involved.
 
 ---
 
