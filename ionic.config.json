@@ -1,0 +1,7 @@
+{
+  "name": "capacitor-skeleton",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
